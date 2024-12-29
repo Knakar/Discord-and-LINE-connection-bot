@@ -11,10 +11,15 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 import {receiveLineMessage, makeResponseMessage} from "./line";
+import {send_discord_messages} from "./discord";
 
 export default {
 	async fetch(request, env, ctx) {
 		const line_events = await receiveLineMessage(request)
 		const send_messages = makeResponseMessage(line_events)
+		send_discord_messages(send_messages)
+		return new Response("", {
+			status: 201
+		})
 	},
 } satisfies ExportedHandler<Env>;
