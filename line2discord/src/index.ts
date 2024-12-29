@@ -10,10 +10,11 @@
  *
  * Learn more at https://developers.cloudflare.com/workers/
  */
-import {receiveLineMessage} from "./line";
+import {receiveLineMessage, makeResponseMessage} from "./line";
 
 export default {
 	async fetch(request, env, ctx) {
 		const line_events = await receiveLineMessage(request)
+		const send_messages = makeResponseMessage(line_events)
 	},
 } satisfies ExportedHandler<Env>;
