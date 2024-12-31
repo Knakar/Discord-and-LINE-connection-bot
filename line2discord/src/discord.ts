@@ -1,21 +1,20 @@
 import {setTimeout} from "node:timers/promises"
-import * as dotenv from "dotenv";
-dotenv.config({path: "../.env"})
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_LINK
-export async function send_discord_messages(messages: Array<string>){
+export async function send_discord_messages(messages: Array<string>, env: Env){
+
+	const DISCORD_WEBHOOK_URL = env.DISCORD_WEBHOOK_LINK
 	if (DISCORD_WEBHOOK_URL){
 		for (const message of messages){
-			fetch(DISCORD_WEBHOOK_URL,{
+			console.log(JSON.stringify({content: message}))
+			const response = await fetch(DISCORD_WEBHOOK_URL,{
 				method: "POST",
 				headers: {
-					"Content-Type": "application/json"
+		          "Content-Type": "application/json;charset=UTF-8"
 				},
-				body: message
-			}).then((response)=>{
-				if(!response.ok){
-					console.error("Cannot send discord:", message)
-				}
+				body: JSON.stringify({content: message})
 			})
+			if(!response.ok){
+				console.error(response.status.toString(), message)
+			}
 			await setTimeout(50)
 		}
 	}else{
