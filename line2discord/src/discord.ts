@@ -1,19 +1,18 @@
 import {setTimeout} from "node:timers/promises"
-export async function send_discord_messages(messages: Array<string>, env: Env){
+export async function send_discord_messages(contents: Array<Record<string, unknown>>, env: Env){
 
 	const DISCORD_WEBHOOK_URL = env.DISCORD_WEBHOOK_LINK
 	if (DISCORD_WEBHOOK_URL){
-		for (const message of messages){
-			console.log(JSON.stringify({content: message}))
+		for (const content of contents){
 			const response = await fetch(DISCORD_WEBHOOK_URL,{
 				method: "POST",
 				headers: {
 		          "Content-Type": "application/json;charset=UTF-8"
 				},
-				body: JSON.stringify({content: message})
+				body: JSON.stringify(content)
 			})
 			if(!response.ok){
-				console.error(response.status.toString(), message)
+				console.error(response.status.toString(), content)
 			}
 			await setTimeout(50)
 		}

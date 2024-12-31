@@ -1,5 +1,6 @@
-import {receiveLineMessage, makeResponseMessage} from "./line";
+import {receiveLineMessage} from "./line";
 import {send_discord_messages} from "./discord";
+import {makeResponseMessage} from "./message";
 
 
 export default {
