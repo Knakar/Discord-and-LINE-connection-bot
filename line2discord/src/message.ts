@@ -38,7 +38,7 @@ export function makeResponseMessage(line_events: Array<WebhookEvent>): Array<Rec
 			response_message += "at: " + datetime + "\n"
 			response_message += "from: " + userId + "\n"
 			response_message += message
-			results.push({content: message})
+			results.push({content: response_message})
 		}
 	})
 	return results
