@@ -1,15 +1,15 @@
 import {messagingApi, WebhookEvent} from "@line/bot-sdk";
-import {RESTPostAPIWebhookWithTokenJSONBody as DiscordWebhookBody} from "discord-api-types/v10";
+import {RESTPostAPIWebhookWithTokenJSONBody as DiscordWebhookBody, APIEmbed} from "discord-api-types/v10";
 import path from "node:path";
 
 const DATA_API_PREFIX = "https://api-data.line.me/v2/bot/message/"
 
-export async function createResponseMessage(line_events: Array<WebhookEvent>, env: Env) {
+export async function createResponseMessage(lineEvents: Array<WebhookEvent>, env: Env) {
 	let results = new Array<DiscordWebhookBody>()
 	const line_cli = new messagingApi.MessagingApiClient({
 		channelAccessToken: env.LINE_API_TOKEN
 	})
-	for (const event of line_events) {
+	for (const event of lineEvents) {
 		const datetime = new Date(event.timestamp * 1000).toLocaleString('ja-JP')
 		if (event.type === "message") {
 			const userId = event.source.userId
@@ -37,15 +37,47 @@ export async function createResponseMessage(line_events: Array<WebhookEvent>, en
 					break;
 
 			}
-			let response_message = ""
-			if (quoteToken) {
-				response_message += "Token: " + quoteToken + "\n"
+			const response: DiscordWebhookBody = {
+				content: "",
+				embeds: [createResponseEmbedMessage("Message", userDisplayName, userId, quoteToken, datetime, message)]
 			}
-			response_message += "at: " + datetime + "\n"
-			response_message += "from: " + userDisplayName + "(" + userId + ")\n"
-			response_message += message
-			results.push({content: response_message})
+			results.push(response)
 		}
 	}
 	return results
+}
+
+function createResponseEmbedMessage(eventType: string, userName: string, userId: string|undefined, token: string|undefined, timestamp: string, message: string|null):APIEmbed {
+	const response: APIEmbed ={
+		title: eventType,
+		color: 0x06C755,  // LINE Forest Green
+		fields: []
+	}
+	response.fields?.push({
+		name: "From",
+		value: userName,
+		inline: true
+	}, {
+		name: "User ID",
+		value: (userId)? userId: "",
+		inline: true
+	})
+	if (token){
+		response.fields?.push({
+			name: "Token",
+			value: token,
+			inline: true
+		})
+	}
+	response.fields?.push({
+		name: "Received at",
+		value: timestamp
+	})
+	if (message){
+		response.fields?.push({
+			name: "Content",
+			value: message
+		})
+	}
+	return response
 }
