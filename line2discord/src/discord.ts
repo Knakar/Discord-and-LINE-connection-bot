@@ -1,5 +1,6 @@
 import {setTimeout} from "node:timers/promises"
-export async function send_discord_messages(contents: Array<Record<string, unknown>>, env: Env){
+import {RESTPostAPIWebhookWithTokenJSONBody as DiscordWebhookBody} from "discord-api-types/v10";
+export async function send_discord_messages(contents: Array<DiscordWebhookBody>, env: Env){
 
 	const DISCORD_WEBHOOK_URL = env.DISCORD_WEBHOOK_LINK
 	if (DISCORD_WEBHOOK_URL){

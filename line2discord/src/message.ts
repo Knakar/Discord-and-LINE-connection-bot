@@ -1,11 +1,11 @@
 import {messagingApi, WebhookEvent} from "@line/bot-sdk";
+import {RESTPostAPIWebhookWithTokenJSONBody as DiscordWebhookBody} from "discord-api-types/v10";
 import path from "node:path";
-import * as events from "node:events";
 
 const DATA_API_PREFIX = "https://api-data.line.me/v2/bot/message/"
 
-export async function makeResponseMessage(line_events: Array<WebhookEvent>, env: Env): Promise<Array<Record<string, string>>> {
-	let results = new Array<Record<string, string>>()
+export async function createResponseMessage(line_events: Array<WebhookEvent>, env: Env) {
+	let results = new Array<DiscordWebhookBody>()
 	const line_cli = new messagingApi.MessagingApiClient({
 		channelAccessToken: env.LINE_API_TOKEN
 	})
