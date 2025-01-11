@@ -14,7 +14,11 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@line/bot-sdk": "^9.5.0",
+    "@types/dotenv": "^8.2.3",
     "@types/node": "^22.10.5",
+    "discord.js": "^14.17.3",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express.js": "^1.0.0"
   }
