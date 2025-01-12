@@ -4,7 +4,6 @@ dotenv.config()
 import {
 	LINE_SIGNATURE_HTTP_HEADER_NAME,
 	SignatureValidationFailed,
-	WebhookEvent,
 	WebhookRequestBody
 } from "@line/bot-sdk";
 import {Request} from "express";
