@@ -1,29 +1,31 @@
 import crypto from "node:crypto";
+import dotenv from "dotenv";
+dotenv.config()
 import {
 	LINE_SIGNATURE_HTTP_HEADER_NAME,
 	SignatureValidationFailed,
 	WebhookEvent,
 	WebhookRequestBody
 } from "@line/bot-sdk";
+import {Request} from "express";
 
 
-
-export async function receiveLineMessage(request: Request<unknown, CfProperties<unknown>>, env: Env) {
-	const header_signature = request.headers.get(LINE_SIGNATURE_HTTP_HEADER_NAME)
-	const body: WebhookRequestBody = await request.json()
+export async function receiveLineMessage(request: Request) {
+	const header_signature = request.headers[LINE_SIGNATURE_HTTP_HEADER_NAME]?.toString()
+	const body: WebhookRequestBody = request.body
 	if (!header_signature) {
 		console.error("HEADER IS NONE")
 		throw SignatureValidationFailed
 	}
-	if (!check_signature(JSON.stringify(body), header_signature, env)) {
+	if (!check_signature(JSON.stringify(body), header_signature)) {
 		console.error("HEDER SIGNATURE WAS WRONG:")
 		throw SignatureValidationFailed
 	}
 	return body.events;
 }
 
-function check_signature(body: string, header_signature: string, env: Env): boolean {
-	const secret_key = env.LINE_WEBHOOK_SECRETKEY
+function check_signature(body: string, header_signature: string): boolean {
+	const secret_key = process.env.LINE_WEBHOOK_SECRETKEY
 	if (secret_key !== undefined) {
 		const body_signature = crypto.createHmac("SHA256", secret_key)
 			.update(body)
