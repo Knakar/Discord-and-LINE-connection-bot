@@ -19,7 +19,7 @@ export async function createResponseMessage(lineEvents: Array<WebhookEvent>) {
 		channelAccessToken: process.env.LINE_API_TOKEN??""
 	})
 	for (const event of lineEvents) {
-		const datetime = new Date(event.timestamp * 1000).toLocaleString('ja-JP')
+		const datetime = new Date(event.timestamp).toLocaleString('ja-JP')
 		if (event.type === "message") {
 			const userId = event.source.userId
 			const userDisplayName = (await line_cli.getProfile(typeof userId === "string" ? userId : "")).displayName
