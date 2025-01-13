@@ -7,12 +7,12 @@ export async function createDeliveryPushMessage(message: OmitPartialGroupDMChann
     const address = referenceMessage?.embeds.map(embed=>{
         return embed.toJSON().fields?.find(field=>field.name === "User Id")?.value
         })[0]
-    const baseDeliveryMessage = composeDeliveryMessageBase(message)
+    const deliveryMessage = composeDeliveryMessageBase(message)
     return {
         to: address??"",
         messages: [{
             type: "text",
-            text: baseDeliveryMessage,
+            text: deliveryMessage,
         }]
     }
 }
