@@ -33,7 +33,7 @@ function composeDeliveryMessageBase(message: OmitPartialGroupDMChannel<DiscordMe
     let baseMassage = "";
     baseMassage += `[${title}]\n`
     baseMassage += `Author: ${auther}\n`
-    baseMassage += `Received at: ${date}\n`
+    baseMassage += `Sent at: ${date}\n`
     baseMassage += `Message:\n${message_content}\n`
     if (attachments.length > 1) {
         baseMassage += `[Attachments]\n${attachments.join("\n")}\n`

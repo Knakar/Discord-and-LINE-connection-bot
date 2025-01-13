@@ -43,7 +43,7 @@ function createSendPushMessageListener(channelId: Snowflake){
         }
         const deliveryMessage = createDeliveryPushMessage(message)
         try {
-            sendPushMessage(deliveryMessage)
+            sendPushMessage(await deliveryMessage)
             markSuccess(message)
         }catch{
             markError(message)
