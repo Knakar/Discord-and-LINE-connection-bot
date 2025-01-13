@@ -57,9 +57,7 @@ function createForwardChannelMessageListener(channelId: Snowflake){
             markSuccess(message)
         }catch (error){
             console.error(error)
-            if (error instanceof RequestError) {
-                markError(message)
-            }
+            markError(message)
         }
     }
 }
