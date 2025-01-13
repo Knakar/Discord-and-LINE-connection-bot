@@ -6,7 +6,7 @@ export async function createDeliveryPushMessage(message: OmitPartialGroupDMChann
     const referenceMessage = await message.channel.messages.fetch(message.reference?.messageId??"")
     // Extract the User id field of the embed
     const address = referenceMessage?.embeds.map(embed=>{
-        return embed.toJSON().fields?.find(field=>field.name === "User Id")?.value
+        return embed.toJSON().fields?.find(field=>field.name === "User ID")?.value
         })[0]
     const deliveryMessage = composeDeliveryMessageBase(message)
     return {
@@ -28,7 +28,7 @@ export async function createDeliveryBroadcastMessage(message: OmitPartialGroupDM
     let replyTo: string|undefined;
     if(message.reference){
         const referenceMessage = await message.channel.messages.fetch(message.reference.messageId??"")
-        replyTo = `[Reply to] ${referenceMessage.author.displayName}\n${referenceMessage.content.replace("\n", "\n> ")}`
+        replyTo = `\n[Reply to] @${referenceMessage.author.username}\n${referenceMessage.content.replace("\n", "\n> ")}`
     }
 
     let deliveryMessage = ""
@@ -47,19 +47,21 @@ export async function createDeliveryBroadcastMessage(message: OmitPartialGroupDM
 
 function composeDeliveryMessageBase(message: OmitPartialGroupDMChannel<DiscordMessage>): string {
     const auther = message.author.username
-    const date = message.createdAt.toLocaleDateString("ja-JP")
+    const date = message.createdAt.toLocaleString("ja-JP")
     const message_content = message.content
     const attachments = message.attachments.map((attachment) =>{
         return attachment.url
     })
     let baseMassage = "";
-    baseMassage += `Author: ${auther}\n`
-    baseMassage += `Sent at: ${date}\n`
-    baseMassage += `Message:\n${message_content}\n`
+    baseMassage += `Author: @${auther}\n`
+    baseMassage += `Sent at: ${date}`
+    if (message.content){
+        baseMassage += `\n[Message[\n${message_content}`
+    }
     if (attachments.length > 1) {
-        baseMassage += `[Attachments]\n${attachments.join("\n")}\n`
+        baseMassage += `\n[Attachments]\n${attachments.join("\n")}`
     }else if(attachments.length > 0) {
-        baseMassage += `[Attachment]${attachments.join("\n")}\n`
+        baseMassage += `\n[Attachment]\n${attachments.join("\n")}`
     }
     return baseMassage
 }

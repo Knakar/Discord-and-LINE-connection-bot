@@ -3,11 +3,11 @@ import {BroadcastRequest} from "@line/bot-sdk/dist/messaging-api/model/broadcast
 import {messagingApi} from "@line/bot-sdk"
 import * as dotenv from "dotenv";
 dotenv.config()
-export function sendPushMessage(request: PushMessageRequest){
+export async function sendPushMessage(request: PushMessageRequest){
     const lineCli = new messagingApi.MessagingApiClient({
         channelAccessToken: process.env.LINE_API_TOKEN??""
     })
-    lineCli.pushMessageWithHttpInfo(request).then(response => {
+    await lineCli.pushMessageWithHttpInfo(request).then(response => {
         if(!response.httpResponse.ok){
             response.httpResponse.json().then((data: any) => {
                 throw new Error(data)
@@ -15,11 +15,11 @@ export function sendPushMessage(request: PushMessageRequest){
         }
     })
 }
-export function sendBroadcastMessage(request: BroadcastRequest){
+export async function sendBroadcastMessage(request: BroadcastRequest){
     const lineCli = new messagingApi.MessagingApiClient({
         channelAccessToken: process.env.LINE_API_TOKEN??""
     })
-    lineCli.broadcastWithHttpInfo(request).then(response => {
+    await lineCli.broadcastWithHttpInfo(request).then(response => {
         if(!response.httpResponse.ok){
             response.httpResponse.json().then((data: any) => {
                 throw new Error(data)
