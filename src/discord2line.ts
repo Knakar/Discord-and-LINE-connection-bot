@@ -33,13 +33,17 @@ export async function discord2line(request: Request, response: Response, next: N
 }
 
 function createSendPushMessageListener(channelId: Snowflake){
-    return (message: OmitPartialGroupDMChannel<Message>) => {
+    return async (message: OmitPartialGroupDMChannel<Message>) => {
         if (message.channelId !== channelId){
+            return
+        }
+        if (!message.reference){
+            await message.reply("返信先のメッセージに返信してください")
             return
         }
         const deliveryMessage = createDeliveryPushMessage(message)
         try {
-            sendPushMessage(deliveryMessage)
+            sendPushMessage(await deliveryMessage)
             markSuccess(message)
         }catch{
             markError(message)
@@ -51,7 +55,7 @@ function createForwardChannelMessageListener(channelId: Snowflake){
         if (message.channelId !== channelId){
             return
         }
-        const deliveryMessage = createDeliveryBroadcastMessage(message, channelId)
+        const deliveryMessage = await createDeliveryBroadcastMessage(message)
         try {
             sendBroadcastMessage(deliveryMessage)
             await markSuccess(message)
