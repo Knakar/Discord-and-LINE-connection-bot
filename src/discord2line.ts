@@ -51,11 +51,11 @@ function createSendPushMessageListener(channelId: Snowflake){
     }
 }
 function createForwardChannelMessageListener(channelId: Snowflake){
-    return (message: OmitPartialGroupDMChannel<Message>) => {
+    return async (message: OmitPartialGroupDMChannel<Message>) => {
         if (message.channelId !== channelId){
             return
         }
-        const deliveryMessage = createDeliveryBroadcastMessage(message, channelId)
+        const deliveryMessage = await createDeliveryBroadcastMessage(message)
         try {
             sendBroadcastMessage(deliveryMessage)
             markSuccess(message)

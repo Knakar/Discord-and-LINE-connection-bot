@@ -1,5 +1,6 @@
 import {OmitPartialGroupDMChannel, Message as DiscordMessage, TextChannel} from "discord.js";
 import {PushMessageRequest} from "@line/bot-sdk/dist/messaging-api/model/pushMessageRequest";
+import {BroadcastRequest} from "@line/bot-sdk/dist/messaging-api/model/broadcastRequest";
 
 export async function createDeliveryPushMessage(message: OmitPartialGroupDMChannel<DiscordMessage>): Promise<PushMessageRequest>{
     const referenceMessage = await message.channel.messages.fetch(message.reference?.messageId??"")
@@ -16,22 +17,42 @@ export async function createDeliveryPushMessage(message: OmitPartialGroupDMChann
         }]
     }
 }
-export function createDeliveryBroadcastMessage(message: OmitPartialGroupDMChannel<DiscordMessage>,channelId: string): PushMessageRequest{}
+
+export async function createDeliveryBroadcastMessage(message: OmitPartialGroupDMChannel<DiscordMessage>): Promise<BroadcastRequest>{
+    let title: string;
+    if (message.inGuild()) {
+        title = `${message.channel.name} in ${message.guild.name}\n`
+    }else {
+        title = "Direct Message\n"
+    }
+    let replyTo: string|undefined;
+    if(message.reference){
+        const referenceMessage = await message.channel.messages.fetch(message.reference.messageId??"")
+        replyTo = `[Reply to] ${referenceMessage.author.displayName}\n${referenceMessage.content.replace("\n", "\n> ")}`
+    }
+
+    let deliveryMessage = ""
+    deliveryMessage += `[${title}]\n`
+    deliveryMessage += composeDeliveryMessageBase(message)
+    if(replyTo){
+        deliveryMessage += replyTo
+    }
+    return {
+        messages: [{
+            type: "text",
+            text: deliveryMessage,
+        }]
+    }
+}
+
 function composeDeliveryMessageBase(message: OmitPartialGroupDMChannel<DiscordMessage>): string {
     const auther = message.author.username
     const date = message.createdAt.toLocaleDateString("ja-JP")
     const message_content = message.content
-    let title: string;
-    if (message.channel instanceof TextChannel) {
-        title = message.channel.name + "in" + message.guild?.name
-    }else {
-        title = "Discord Message"
-    }
     const attachments = message.attachments.map((attachment) =>{
         return attachment.url
     })
     let baseMassage = "";
-    baseMassage += `[${title}]\n`
     baseMassage += `Author: ${auther}\n`
     baseMassage += `Sent at: ${date}\n`
     baseMassage += `Message:\n${message_content}\n`
