@@ -1,7 +1,21 @@
-import {OmitPartialGroupDMChannel, Message as DiscordMessage, Snowflake, TextChannel} from "discord.js";
+import {OmitPartialGroupDMChannel, Message as DiscordMessage, TextChannel} from "discord.js";
 import {PushMessageRequest} from "@line/bot-sdk/dist/messaging-api/model/pushMessageRequest";
 
-export function createDeliveryPushMessage(message: OmitPartialGroupDMChannel<DiscordMessage>): PushMessageRequest{}
+export async function createDeliveryPushMessage(message: OmitPartialGroupDMChannel<DiscordMessage>): Promise<PushMessageRequest>{
+    const referenceMessage = await message.channel.messages.fetch(message.reference?.messageId??"")
+    // Extract the User id field of the embed
+    const address = referenceMessage?.embeds.map(embed=>{
+        return embed.toJSON().fields?.find(field=>field.name === "User Id")?.value
+        })[0]
+    const baseDeliveryMessage = composeDeliveryMessageBase(message)
+    return {
+        to: address??"",
+        messages: [{
+            type: "text",
+            text: baseDeliveryMessage,
+        }]
+    }
+}
 export function createDeliveryBroadcastMessage(message: OmitPartialGroupDMChannel<DiscordMessage>,channelId: string): PushMessageRequest{}
 function composeDeliveryMessageBase(message: OmitPartialGroupDMChannel<DiscordMessage>): string {
     const auther = message.author.username

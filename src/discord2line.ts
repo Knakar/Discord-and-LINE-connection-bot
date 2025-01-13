@@ -33,8 +33,12 @@ export async function discord2line(request: Request, response: Response, next: N
 }
 
 function createSendPushMessageListener(channelId: Snowflake){
-    return (message: OmitPartialGroupDMChannel<Message>) => {
+    return async (message: OmitPartialGroupDMChannel<Message>) => {
         if (message.channelId !== channelId){
+            return
+        }
+        if (!message.reference){
+            await message.reply("返信先のメッセージに返信してください")
             return
         }
         const deliveryMessage = createDeliveryPushMessage(message)
