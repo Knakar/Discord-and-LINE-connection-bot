@@ -110,7 +110,7 @@ function createResponseEmbedMessage(eventType: string, userName: string, userId:
 		})
 	}
 	response.fields?.push({
-		name: "Received at",
+		name: "Sent at",
 		value: timestamp
 	})
 	if (message){
