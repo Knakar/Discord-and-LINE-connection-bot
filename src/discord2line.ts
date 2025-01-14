@@ -41,6 +41,7 @@ function createSendPushMessageListener(channelId: Snowflake){
         if (message.channelId !== channelId){
             return
         }
+        if (message.author.bot) return;
         if (!message.reference){
             await message.reply("メッセージに返信してください");
             await markError(message);
