@@ -53,6 +53,10 @@ export async function createResponseMessage(lineEvents: Array<WebhookEvent>) {
 				case "text":
 					embedFieldOptions.token = event.message.quoteToken
 					embedFieldOptions.message = event.message.text
+					const autoReplyMessages = ["入サー希望", "新歓イベント"]
+					if (autoReplyMessages.includes(event.message.text)) {
+						continue;
+					}
 					break;
 				case "image":
 					attachment = await getAttachmentData(event.message.id);
