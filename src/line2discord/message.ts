@@ -22,7 +22,8 @@ export async function createResponseMessage(lineEvents: Array<WebhookEvent>) {
 		const datetime = new Date(event.timestamp).toLocaleString('ja-JP')
 		if (event.type === "message") {
 			const userId = event.source.userId
-			const userDisplayName = (await line_cli.getProfile(typeof userId === "string" ? userId : "")).displayName
+			const embedFieldOptions: Partial<EmbedFieldOptions> = {};
+			embedFieldOptions.userName = (await line_cli.getProfile(typeof userId === "string" ? userId : "")).displayName
 			const getAttachmentDataTranscoding =  async (messageId: string) : Promise<AttachmentBuilder|undefined>=> {
 				return line_blob_cli.getMessageContentTranscodingByMessageId(messageId).then(async response => {
 					if (response.status === "processing") {
@@ -47,23 +48,24 @@ export async function createResponseMessage(lineEvents: Array<WebhookEvent>) {
 					return undefined
 				})
 			}
-			let quoteToken: string | undefined
-			let message = ""
-			let attachmentLink: string | undefined
 			let attachment: AttachmentBuilder|undefined
 			switch (event.message.type) {
 				case "text":
-					quoteToken = event.message.quoteToken
-					message = event.message.text
+					embedFieldOptions.token = event.message.quoteToken
+					embedFieldOptions.message = event.message.text
+					const autoReplyMessages = ["入サー希望", "新歓イベント"]
+					if (autoReplyMessages.includes(event.message.text)) {
+						continue;
+					}
 					break;
 				case "image":
 					attachment = await getAttachmentData(event.message.id);
 					break;
 				case "video":
-					quoteToken = event.message.quoteToken
+					embedFieldOptions.token = event.message.quoteToken
 				case "audio":
 					if (event.message.contentProvider.type === "external") {
-						attachmentLink = event.message.contentProvider.originalContentUrl
+						embedFieldOptions.link = event.message.contentProvider.originalContentUrl
 					} else if (event.message.contentProvider.type === "line") {
 						attachment = await getAttachmentDataTranscoding(event.message.id)
 					}
@@ -76,7 +78,7 @@ export async function createResponseMessage(lineEvents: Array<WebhookEvent>) {
 
 			}
 			const response: MessageCreateOptions = {
-				embeds: [createResponseEmbedMessage("Message", userDisplayName, userId, quoteToken, datetime, message, attachmentLink)]
+				embeds: [createResponseEmbedMessage("Message", userId??"", datetime, embedFieldOptions)]
 			}
 			if (attachment){
 				response.files = [attachment]
@@ -87,43 +89,50 @@ export async function createResponseMessage(lineEvents: Array<WebhookEvent>) {
 	return results
 }
 
-function createResponseEmbedMessage(eventType: string, userName: string, userId: string|undefined, token: string|undefined, timestamp: string, message: string|null, link: string|undefined):APIEmbed {
-	const response: APIEmbed ={
+function createResponseEmbedMessage(eventType: string, userId: string, timestamp: string, options: Partial<EmbedFieldOptions>):APIEmbed {
+	const response: APIEmbed = {
 		title: eventType,
 		color: 0x06C755,  // LINE Forest Green
 		fields: []
 	}
 	response.fields?.push({
 		name: "From",
-		value: userName,
+		value: options.userName??"",
 		inline: true
 	}, {
 		name: "User ID",
-		value: (userId)? userId: "",
+		value: userId,
 		inline: true
 	})
-	if (token){
+	if (options.token) {
 		response.fields?.push({
 			name: "Token",
-			value: token,
+			value: options.token,
 			inline: true
 		})
 	}
 	response.fields?.push({
-		name: "Received at",
+		name: "Sent at",
 		value: timestamp
 	})
-	if (message){
+	if (options.message) {
 		response.fields?.push({
 			name: "Content",
-			value: message
+			value: options.message
 		})
 	}
-	if (link){
+	if (options.link) {
 		response.fields?.push({
 			name: "Link",
-			value: link
+			value: options.link
 		})
 	}
 	return response
+}
+
+type EmbedFieldOptions = {
+	userName: string,
+	token: string,
+	message: string,
+	link: string
 }
