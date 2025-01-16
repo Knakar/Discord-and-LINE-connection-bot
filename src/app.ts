@@ -9,8 +9,8 @@ app.use(express.json())
 app.post("/line/", line2discord)
 
 // Discord endpoint
-app.post("/discord/", discord2line)
+app.head("/discord/", discord2line)
 
-app.listen(3000, () => {
-    console.log("Server started on port 3000")
+app.listen(80, () => {
+    console.log("Server started on port 80")
 })
