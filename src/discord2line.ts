@@ -22,6 +22,7 @@ export async function discord2line(request: Request, response: Response, next: N
     // Forward Notification
     discordCli.on(Events.MessageCreate, sendForwardChannelMessageListener)
 
+    response.status(200).send()
     // set Timer
     await new Promise<void>((resolve) => {
         const startTime = Date.now();
@@ -33,7 +34,6 @@ export async function discord2line(request: Request, response: Response, next: N
             }
         }, 1000);
     })
-    response.status(200);
 }
 
 function createSendPushMessageListener(channelId: Snowflake){
