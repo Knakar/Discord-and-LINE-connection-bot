@@ -1,4 +1,9 @@
-import {OmitPartialGroupDMChannel, Message as DiscordMessage, TextChannel} from "discord.js";
+import {
+    OmitPartialGroupDMChannel,
+    Message as DiscordMessage,
+    TextChannel,
+    ChatInputCommandInteraction, CommandInteraction, CacheType
+} from "discord.js";
 import {PushMessageRequest} from "@line/bot-sdk/dist/messaging-api/model/pushMessageRequest";
 import {BroadcastRequest} from "@line/bot-sdk/dist/messaging-api/model/broadcastRequest";
 
@@ -64,4 +69,35 @@ function composeDeliveryMessageBase(message: OmitPartialGroupDMChannel<DiscordMe
         baseMassage += `\n[Attachment]\n${attachments.join("\n")}`
     }
     return baseMassage
+}
+
+export function composeCommandBroadcastMessage(interaction: ChatInputCommandInteraction<CacheType>): BroadcastRequest {
+    const content = interaction.options.getString("message", true).replace(/\\n/g, "\n")
+    const createdAt = new Date(interaction.createdTimestamp).toLocaleString("ja-JP")
+    const channel = interaction.guild?.channels.cache.find((channel => channel.id === interaction.channelId))
+    const categoryName = channel?.parent?.name.replace(/━/g, "")
+    const guildName = interaction.guild?.name
+    const username = interaction.user.username
+    let message = ""
+    if(channel ||  guildName){
+        message += "["
+        if(categoryName){
+            message += categoryName + "::"
+        }
+        message += (channel?.name??"")
+        if(guildName){
+            message += " in " + guildName
+        }
+
+        message += "]\n"
+    }
+    message += "Created at: " + createdAt + " \n"
+    message += "from: @" + username + " \n"
+    message += "[Message]\n"+content
+    return {
+        messages: [{
+            type: "text",
+            text: message
+        }]
+    }
 }
